@@ -18,6 +18,7 @@ export interface Product {
 
 const STORAGE_KEY = 'scanned_products';
 
+// Fetch product data
 export async function fetchProductData(barcode: string): Promise<Product | null> {
   try {
     const response = await axios.get(
@@ -43,6 +44,7 @@ export async function fetchProductData(barcode: string): Promise<Product | null>
   }
 }
 
+// Save product
 export async function saveProduct(product: Product): Promise<void> {
   try {
     const existingProductsJson = await AsyncStorage.getItem(STORAGE_KEY);
@@ -64,6 +66,7 @@ export async function saveProduct(product: Product): Promise<void> {
   }
 }
 
+// Get products
 export async function getProducts(): Promise<Product[]> {
   try {
     const productsJson = await AsyncStorage.getItem(STORAGE_KEY);
@@ -83,6 +86,7 @@ export async function getProducts(): Promise<Product[]> {
   }
 }
 
+// Delete product
 export async function deleteProduct(productId: string): Promise<void> {
   try {
     const products = await getProducts();

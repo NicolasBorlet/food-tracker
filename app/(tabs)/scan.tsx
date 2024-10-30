@@ -37,7 +37,7 @@ export default function ScanScreen() {
           <CameraView
             style={styles.camera}
             barcodeScannerSettings={{
-              barcodeTypes: ["qr", "ean13"],
+              barcodeTypes: ["ean13"],
             }}
             onBarcodeScanned={handleBarCodeScanned}
           >
