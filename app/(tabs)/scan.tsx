@@ -1,9 +1,13 @@
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { fetchProductData, saveProduct } from "../utils/productUtils";
+
+const { width } = Dimensions.get('window');
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
@@ -31,7 +35,7 @@ export default function ScanScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.mainContainer}>
         {permission?.granted ? (
           <CameraView
@@ -41,26 +45,39 @@ export default function ScanScreen() {
             }}
             onBarcodeScanned={handleBarCodeScanned}
           >
-            <View style={styles.overlay}>
-              <Text style={styles.scanText}>
-                Placez le code-barres dans le cadre
-              </Text>
-            </View>
+            <LinearGradient
+              colors={['rgba(0,0,0,0.7)', 'transparent', 'rgba(0,0,0,0.7)']}
+              style={styles.overlay}
+            >
+              <View style={styles.scanFrame}>
+                <View style={styles.cornerTL} />
+                <View style={styles.cornerTR} />
+                <View style={styles.cornerBL} />
+                <View style={styles.cornerBR} />
+              </View>
+              <BlurView intensity={80} style={styles.infoBox}>
+                <Text style={styles.scanText}>
+                  Placez le code-barres dans le cadre
+                </Text>
+              </BlurView>
+            </LinearGradient>
           </CameraView>
         ) : (
           <View style={styles.permissionContainer}>
-            <Text style={styles.message}>Permission non accordée</Text>
-            <Button
-              title="Autoriser la caméra"
+            <Ionicons name="camera-outline" size={64} color="#007AFF" />
+            <Text style={styles.message}>Permission de caméra non accordée</Text>
+            <TouchableOpacity
+              style={styles.button}
               onPress={requestPermission}
-            />
+            >
+              <Text style={styles.buttonText}>Autoriser la caméra</Text>
+            </TouchableOpacity>
           </View>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -91,5 +108,36 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     textAlign: 'center',
+  },
+  scanFrame: {
+    width: width * 0.7,
+    height: width * 0.7,
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: 'transparent',
+  },
+  cornerTL: { position: 'absolute', top: 0, left: 0, width: 20, height: 20, borderTopWidth: 4, borderLeftWidth: 4, borderColor: 'white' },
+  cornerTR: { position: 'absolute', top: 0, right: 0, width: 20, height: 20, borderTopWidth: 4, borderRightWidth: 4, borderColor: 'white' },
+  cornerBL: { position: 'absolute', bottom: 0, left: 0, width: 20, height: 20, borderBottomWidth: 4, borderLeftWidth: 4, borderColor: 'white' },
+  cornerBR: { position: 'absolute', bottom: 0, right: 0, width: 20, height: 20, borderBottomWidth: 4, borderRightWidth: 4, borderColor: 'white' },
+  infoBox: {
+    position: 'absolute',
+    bottom: 50,
+    left: 20,
+    right: 20,
+    padding: 15,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  button: {
+    backgroundColor: '#007AFF',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 8,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

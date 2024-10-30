@@ -1,8 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { Product, deleteProduct, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
@@ -44,13 +44,13 @@ export default function ProductsScreen() {
         style={styles.deleteButton}
         onPress={() => handleDeleteProduct(item.id)}
       >
-        <Text style={styles.deleteButtonText}>Supprimer</Text>
+        <Ionicons name="trash-outline" size={24} color="white" />
       </TouchableOpacity>
     </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <Text style={styles.title}>Mes Produits Scannés</Text>
       <FlatList
         data={products}
@@ -58,14 +58,19 @@ export default function ProductsScreen() {
         keyExtractor={item => item.id}
         contentContainerStyle={styles.listContainer}
       />
-    </SafeAreaView>
+    </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  gradient: {
+    flex: 1,
+    paddingTop: 20,
   },
   title: {
     fontSize: 24,
