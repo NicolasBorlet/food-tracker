@@ -1,6 +1,6 @@
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
-import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useRouter } from "expo-router";
+import { useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { fetchProductData, saveProduct } from "../utils/productUtils";
@@ -8,26 +8,11 @@ import { fetchProductData, saveProduct } from "../utils/productUtils";
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [isScanning, setIsScanning] = useState(true);
-  const [isCameraActive, setIsCameraActive] = useState(true);
   const router = useRouter();
 
-  // Réinitialiser l'état de la caméra lorsqu'on revient sur l'écran
-  useFocusEffect(
-    useCallback(() => {
-      setIsScanning(true);
-      setIsCameraActive(true);
-
-      return () => {
-        setIsCameraActive(false);
-      };
-    }, [])
-  );
-
   const handleBarCodeScanned = async ({ data }: BarcodeScanningResult) => {
-    if (!isScanning || !isCameraActive) return;
-
+    if (!isScanning) return;
     setIsScanning(false);
-    setIsCameraActive(false);
 
     try {
       const productData = await fetchProductData(data);
@@ -37,13 +22,11 @@ export default function ScanScreen() {
       } else {
         alert("Produit non trouvé");
         setIsScanning(true);
-        setIsCameraActive(true);
       }
     } catch (error) {
       console.error("Erreur lors du scan:", error);
       alert("Erreur lors du scan du produit");
       setIsScanning(true);
-      setIsCameraActive(true);
     }
   };
 
@@ -51,25 +34,19 @@ export default function ScanScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.mainContainer}>
         {permission?.granted ? (
-          isCameraActive ? (
-            <CameraView
-              style={styles.camera}
-              barcodeScannerSettings={{
-                barcodeTypes: ["qr", "ean13"],
-              }}
-              onBarcodeScanned={handleBarCodeScanned}
-            >
-              <View style={styles.overlay}>
-                <Text style={styles.scanText}>
-                  Placez le code-barres dans le cadre
-                </Text>
-              </View>
-            </CameraView>
-          ) : (
+          <CameraView
+            style={styles.camera}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr", "ean13"],
+            }}
+            onBarcodeScanned={handleBarCodeScanned}
+          >
             <View style={styles.overlay}>
-              <Text style={styles.scanText}>Scan en cours...</Text>
+              <Text style={styles.scanText}>
+                Placez le code-barres dans le cadre
+              </Text>
             </View>
-          )
+          </CameraView>
         ) : (
           <View style={styles.permissionContainer}>
             <Text style={styles.message}>Permission non accordée</Text>
