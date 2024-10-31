@@ -1,8 +1,11 @@
-import { Image, StyleSheet } from 'react-native';
+import { Image, Pressable, StyleSheet } from 'react-native';
 
+import Block from '@/components/block';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { StyledButton } from '@/components/styled-button';
-import { ButtonText } from '@/components/styled-title';
+import { Card } from '@/components/styled-card';
+import { ButtonText, Caption, H2, Small } from '@/components/styled-title';
+import { EvilIcons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   return (
@@ -17,6 +20,60 @@ export default function HomeScreen() {
       <StyledButton>
         <ButtonText>Click me</ButtonText>
       </StyledButton>
+      <Card title="Today">
+        <Pressable style={{
+            position: 'absolute',
+            right: 10,
+            top: '50%',
+          }}
+          onPress={() => {
+            console.log('pressed');
+          }}
+        >
+          <EvilIcons name="trash" size={32} color="#FF5A4F"/>
+        </Pressable>
+        <Small>
+          {new Date().toLocaleDateString()}
+        </Small>
+        <Block row>
+          <Block row style={{
+            alignItems: 'flex-end',
+          }}>
+            <H2>
+              61.90
+            </H2>
+            <Small>
+              kg
+            </Small>
+          </Block>
+          <Block row style={{
+              alignItems: 'flex-end',
+            }}>
+            <H2>
+              2650/2550
+            </H2>
+            <Small>
+              cal
+            </Small>
+          </Block>
+        </Block>
+        <Block row>
+          <Block>
+            <Caption style={{
+              textTransform: 'uppercase',
+            }}>
+              Body weight
+            </Caption>
+          </Block>
+          <Block>
+            <Caption style={{
+              textTransform: 'uppercase',
+            }}>
+              Calories
+            </Caption>
+          </Block>
+        </Block>
+      </Card>
     </ParallaxScrollView>
   );
 }
