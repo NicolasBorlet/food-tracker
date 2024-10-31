@@ -1,11 +1,32 @@
 import { Image, Pressable, StyleSheet } from 'react-native';
 
 import Block from '@/components/block';
+import DonutChart from '@/components/donut-chart';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
+import Progress from '@/components/progress';
 import { StyledButton } from '@/components/styled-button';
 import { Card } from '@/components/styled-card';
 import { ButtonText, Caption, H2, Small } from '@/components/styled-title';
 import { Entypo, EvilIcons } from '@expo/vector-icons';
+import { Circle } from 'react-native-svg';
+
+const macros = [
+  {
+    label: 'Protein',
+    value: 20,
+    color: '#FF5A4F',
+  },
+  {
+    label: 'Carbohydrates',
+    value: 10,
+    color: '#29B750',
+  },
+  {
+    label: 'Fat',
+    value: 30,
+    color: '#F2C94C',
+  },
+]
 
 export default function HomeScreen() {
   return (
@@ -84,6 +105,29 @@ export default function HomeScreen() {
           </Block>
         </Block>
       </Card>
+
+      <Card title="Macros">
+        <Block row style={{
+          justifyContent: 'space-between',
+        }}>
+          <DonutChart value={40} labels={macros} size={100}/>
+          <Block>
+            {macros.map((macro) => (
+              <Block row key={macro.label} style={{
+                justifyContent: 'space-between',
+              }}>
+                <Block row>
+                  <Circle cx={0} cy={0} r={10} fill={macro.color} />
+                  <Caption>{macro.label}</Caption>
+                </Block>
+                <Caption>{macro.value}</Caption>
+              </Block>
+            ))}
+          </Block>
+        </Block>
+      </Card>
+
+      <Progress title="Carbohydrates" value={146} maxValue={376} />
     </ParallaxScrollView>
   );
 }
