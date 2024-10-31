@@ -5,7 +5,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { StyledButton } from '@/components/styled-button';
 import { Card } from '@/components/styled-card';
 import { ButtonText, Caption, H2, Small } from '@/components/styled-title';
-import { EvilIcons } from '@expo/vector-icons';
+import { Entypo, EvilIcons } from '@expo/vector-icons';
 
 export default function HomeScreen() {
   return (
@@ -38,6 +38,7 @@ export default function HomeScreen() {
         <Block row>
           <Block row style={{
             alignItems: 'flex-end',
+            gap: 4,
           }}>
             <H2>
               61.90
@@ -48,6 +49,7 @@ export default function HomeScreen() {
           </Block>
           <Block row style={{
               alignItems: 'flex-end',
+              gap: 4,
             }}>
             <H2>
               2650/2550
@@ -58,19 +60,27 @@ export default function HomeScreen() {
           </Block>
         </Block>
         <Block row>
-          <Block>
+          <Block row style={{
+            alignItems: 'flex-end',
+            gap: 4,
+          }}>
             <Caption style={{
               textTransform: 'uppercase',
             }}>
               Body weight
             </Caption>
+            <Entypo name="chevron-small-up" size={12} color="#FF5A4F" />
           </Block>
-          <Block>
+          <Block row style={{
+            alignItems: 'flex-end',
+            gap: 4,
+          }}>
             <Caption style={{
               textTransform: 'uppercase',
             }}>
               Calories
             </Caption>
+            <Entypo name="chevron-small-up" size={12} color="#29B750" />
           </Block>
         </Block>
       </Card>

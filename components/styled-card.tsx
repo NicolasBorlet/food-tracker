@@ -4,7 +4,7 @@ import { H1 } from './styled-title';
 
 export const StyledCard = styled.View`
   background-color: #fff;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 16px;
   width: 100%;
   shadow-color: #000;
