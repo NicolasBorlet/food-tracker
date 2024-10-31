@@ -51,7 +51,6 @@ export default function ProductsScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mes Produits Scannés</Text>
       <FlatList
         data={products}
         renderItem={renderItem}
