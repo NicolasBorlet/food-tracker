@@ -11,12 +11,12 @@ import RNPickerSelect from 'react-native-picker-select';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFridge } from '../contexts/FridgeContext';
 import { Product } from '../types/types';
-import { addFridge, deleteFridge } from '../utils/fridgeUtils';
+import { addFridge, deleteFridge, getFridges, updateFridge } from '../utils/fridgeUtils';
 import { deleteProduct, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
-  const { fridges, selectedFridgeId, setSelectedFridgeId, refreshFridges } = useFridge();
+  const { fridges, selectedFridgeId, setSelectedFridgeId, refreshFridges, selectedFridge} = useFridge();
 
   useFocusEffect(
     useCallback(() => {
@@ -72,9 +72,95 @@ export default function ProductsScreen() {
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (selectedFridgeId) {
-      await deleteProduct(productId, selectedFridgeId);
-      await loadProducts(selectedFridgeId);
+    if (!selectedFridgeId) return;
+
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    if (product.quantity > 1) {
+      Alert.prompt(
+        "Supprimer des produits",
+        `Combien d'unités souhaitez-vous supprimer ? (1-${product.quantity})`,
+        [
+          {
+            text: "Annuler",
+            style: "cancel"
+          },
+          {
+            text: "Supprimer",
+            onPress: async (quantityStr?: string) => {
+              const quantity = parseInt(quantityStr || "0", 10);
+
+              if (isNaN(quantity) || quantity < 1 || quantity > product.quantity) {
+                Alert.alert(
+                  "Erreur",
+                  `Veuillez entrer un nombre entre 1 et ${product.quantity}`
+                );
+                return;
+              }
+
+              try {
+                const fridges = await getFridges();
+                const fridge = fridges.find(f => f.id === selectedFridgeId);
+
+                if (!fridge) {
+                  throw new Error('Frigo non trouvé');
+                }
+
+                const productIndex = fridge.products.findIndex(p => p.id === productId);
+                if (productIndex !== -1) {
+                  // Si on supprime toute la quantité
+                  if (quantity >= fridge.products[productIndex].quantity) {
+                    fridge.products = fridge.products.filter(p => p.id !== productId);
+                  } else {
+                    // Sinon on décrémente la quantité du nombre spécifié
+                    fridge.products[productIndex].quantity -= quantity;
+                  }
+                }
+
+                await updateFridge(fridge);
+                await loadProducts(selectedFridgeId);
+              } catch (error) {
+                console.error('Erreur lors de la suppression des produits:', error);
+                Alert.alert(
+                  "Erreur",
+                  "Une erreur est survenue lors de la suppression des produits"
+                );
+              }
+            }
+          }
+        ],
+        'plain-text',
+        '1'
+      );
+    } else {
+      // Si la quantité est de 1, supprimer directement le produit
+      Alert.alert(
+        "Supprimer le produit",
+        "Voulez-vous supprimer ce produit ?",
+        [
+          {
+            text: "Annuler",
+            style: "cancel"
+          },
+          {
+            text: "Supprimer",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await deleteProduct(productId, selectedFridgeId);
+                await loadProducts(selectedFridgeId);
+              } catch (error) {
+                console.error('Erreur lors de la suppression du produit:', error);
+                Alert.alert(
+                  "Erreur",
+                  "Une erreur est survenue lors de la suppression du produit"
+                );
+              }
+            }
+          }
+        ]
+      );
     }
   };
 
@@ -153,9 +239,6 @@ export default function ProductsScreen() {
       <Block style={{ gap: 16 }}>
         <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
           <Block style={{ flex: 1 }}>
-            <H1>Mon frigo</H1>
-          </Block>
-          <View style={{ gap: 8, alignItems: 'center', flexDirection: 'row' }}>
             <RNPickerSelect
               onValueChange={(value) => setSelectedFridgeId(value)}
               value={selectedFridgeId}
@@ -164,6 +247,8 @@ export default function ProductsScreen() {
                 value: fridge.id,
               }))}
             />
+          </Block>
+          <View style={{ gap: 8, alignItems: 'center', flexDirection: 'row' }}>
             <TouchableOpacity onPress={handleAddFridge}>
               <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
             </TouchableOpacity>
