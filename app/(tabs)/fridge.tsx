@@ -6,12 +6,12 @@ import { useFocusEffect } from '@react-navigation/native';
 import { FlashList } from "@shopify/flash-list";
 import { Link } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFridge } from '../contexts/FridgeContext';
 import { Product } from '../types/types';
-import { addFridge } from '../utils/fridgeUtils';
+import { addFridge, deleteFridge } from '../utils/fridgeUtils';
 import { deleteProduct, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
@@ -29,7 +29,6 @@ export default function ProductsScreen() {
 
   const loadProducts = async (fridgeId: string) => {
     const loadedProducts = await getProducts(fridgeId);
-    console.log('loadedProducts', loadedProducts);
     setProducts(loadedProducts);
   };
 
@@ -38,6 +37,53 @@ export default function ProductsScreen() {
       await deleteProduct(productId, selectedFridgeId);
       await loadProducts(selectedFridgeId);
     }
+  };
+
+  const handleDeleteFridge = async () => {
+    if (!selectedFridgeId) return;
+
+    // Vérifier s'il ne reste qu'un seul frigo
+    if (fridges.length <= 1) {
+      Alert.alert(
+        "Action impossible",
+        "Vous ne pouvez pas supprimer le dernier frigo.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+
+    // Afficher le popup de confirmation
+    Alert.alert(
+      "Supprimer le frigo",
+      "Êtes-vous sûr de vouloir supprimer ce frigo et tout son contenu ?",
+      [
+        {
+          text: "Annuler",
+          style: "cancel"
+        },
+        {
+          text: "Supprimer",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await deleteFridge(selectedFridgeId);
+              // Sélectionner automatiquement un autre frigo
+              const remainingFridges = fridges.filter(f => f.id !== selectedFridgeId);
+              if (remainingFridges.length > 0) {
+                await setSelectedFridgeId(remainingFridges[0].id);
+              }
+              await refreshFridges();
+            } catch (error) {
+              console.error('Erreur lors de la suppression du frigo:', error);
+              Alert.alert(
+                "Erreur",
+                "Une erreur est survenue lors de la suppression du frigo."
+              );
+            }
+          }
+        }
+      ]
+    );
   };
 
   const renderItem = ({ item }: { item: Product }) => (
@@ -84,6 +130,9 @@ export default function ProductsScreen() {
                 })
             }>
               <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={handleDeleteFridge}>
+              <Ionicons name="trash-outline" size={24} color="rgb(255, 90, 79)" />
             </TouchableOpacity>
           </View>
         </View>
