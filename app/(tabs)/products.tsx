@@ -1,8 +1,10 @@
+import Block from '@/components/block';
+import { Body, H1 } from '@/components/styled-title';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Product, deleteProduct, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
@@ -36,10 +38,10 @@ export default function ProductsScreen() {
         source={{ uri: item.image_url }}
         style={styles.productImage}
       />
-      <View style={styles.productInfo}>
-        <Text style={styles.productName}>{item.name}</Text>
-        <Text style={styles.productBrand}>{item.brand}</Text>
-      </View>
+      <Block style={styles.productInfo}>
+        <H1 style={styles.productName}>{item.name}</H1>
+        <Body style={styles.productBrand}>{item.brand}</Body>
+      </Block>
       <TouchableOpacity
         style={styles.deleteButton}
         onPress={() => handleDeleteProduct(item.id)}

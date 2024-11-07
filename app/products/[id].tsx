@@ -1,6 +1,10 @@
+import Block from '@/components/block';
+import Progress from '@/components/progress';
+import { Card } from '@/components/styled-card';
+import { Body, H1, H2 } from '@/components/styled-title';
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Product, getProducts } from '../utils/productUtils';
 
@@ -27,42 +31,68 @@ export default function ProductDetailScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <ScrollView>
-        <Image
-          source={{ uri: product.image_url }}
-          style={styles.productImage}
-        />
-        <View style={styles.content}>
-          <Text style={styles.title}>{product.name}</Text>
-          <Text style={styles.brand}>{product.brand}</Text>
+    <ScrollView showsVerticalScrollIndicator={false}>
+      <Image source={{ uri: product.image_url }} style={styles.productImage} />
 
-          <Text style={styles.sectionTitle}>Informations nutritionnelles</Text>
-          <View style={styles.nutriments}>
-            <Text>Énergie: {product.nutriments.energy_100g || 'N/A'} kcal/100g</Text>
-            <Text>Protéines: {product.nutriments.proteins_100g || 'N/A'} g/100g</Text>
-            <Text>Glucides: {product.nutriments.carbohydrates_100g || 'N/A'} g/100g</Text>
-            <Text>Lipides: {product.nutriments.fat_100g || 'N/A'} g/100g</Text>
-          </View>
+      <Block style={styles.content}>
+        <H1>{product.name}</H1>
+        {product.brand && <H2>Marque: {product.brand}</H2>}
 
-          {product.ingredients_text && (
-            <>
-              <Text style={styles.sectionTitle}>Ingrédients</Text>
-              <Text>{product.ingredients_text}</Text>
-            </>
-          )}
+        {/* Nutri-Score */}
+        {product.nutriscore_grade && (
+          <Block>
+            <Card title='Nutri-Score'>
+              <Body>
+                {product.nutriscore_grade === 'not-applicable' ? 'N/A' : product.nutriscore_grade.toUpperCase()}
+              </Body>
+            </Card>
+          </Block>
+        )}
 
-          {product.nutriscore_grade && (
-            <View style={styles.nutriscoreContainer}>
-              <Text style={styles.sectionTitle}>Nutri-Score</Text>
-              <Text style={styles.nutriscore}>
-                {product.nutriscore_grade.toUpperCase()}
-              </Text>
-            </View>
-          )}
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+        {/* Informations nutritionnelles */}
+        <Block>
+          <Card title='Informations Nutritionnelles (pour 100g)'>
+            <Block>
+              <Body>Énergie</Body>
+              <Text>{product.nutriments["energy-kcal_100g"]} kcal</Text>
+            </Block>
+            <Progress title='Glucides' value={product.nutriments.carbohydrates_100g || 0} maxValue={100} />
+            <Progress title='Sucres' value={product.nutriments.sugars_100g || 0} maxValue={100} />
+            <Progress title='Lipides' value={product.nutriments.fat_100g || 0} maxValue={100} />
+            <Progress title='Acides Gras Saturés' value={product.nutriments["saturated-fat_100g"] || 0} maxValue={100} />
+            <Progress title='Fibres' value={product.nutriments.fiber_100g || 0} maxValue={100} />
+            <Progress title='Sel' value={product.nutriments.salt_100g || 0} maxValue={100} />
+          </Card>
+        </Block>
+
+        {/* Empreinte Carbone */}
+        {product.nutriscore_grade && (
+          <Block>
+            <Card title='Empreinte Carbone'>
+              <Body>Empreinte carbone (pour 100g) : {product.nutriscore_grade["carbon-footprint-from-known-ingredients_100g"] || "N/A"}</Body>
+            </Card>
+          </Block>
+        )}
+
+        {/* Groupe NOVA */}
+        {product.nutriscore_grade && (
+          <Block>
+            <Card title='Groupe NOVA'>
+              <Body>Classification : {product.nutriscore_grade["nova-group_100g"] === 'not-applicable' ? 'N/A' : product.nutriscore_grade["nova-group_100g"]}</Body>
+            </Card>
+          </Block>
+        )}
+
+        {/* Ingrédients */}
+        {product.ingredients_text && (
+          <Block>
+            <Card title='Ingrédients'>
+              <Body>{product.ingredients_text}</Body>
+            </Card>
+          </Block>
+        )}
+      </Block>
+    </ScrollView>
   );
 }
 
@@ -78,6 +108,7 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    gap: 16,
   },
   title: {
     fontSize: 24,
@@ -89,16 +120,23 @@ const styles = StyleSheet.create({
     color: '#666',
     marginBottom: 16,
   },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 8,
-  },
-  nutriments: {
+  section: {
     backgroundColor: '#f5f5f5',
     padding: 16,
     borderRadius: 8,
+    marginTop: 16,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  nutriment: {
+    fontSize: 16,
+    marginVertical: 4,
+  },
+  nutriments: {
+    marginVertical: 8,
   },
   nutriscoreContainer: {
     marginTop: 16,
@@ -107,5 +145,10 @@ const styles = StyleSheet.create({
   nutriscore: {
     fontSize: 32,
     fontWeight: 'bold',
+  },
+  ingredients: {
+    fontSize: 16,
+    color: '#333',
+    marginTop: 8,
   },
 });

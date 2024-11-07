@@ -56,7 +56,7 @@ export default function Progress({
         <Animated.View
           style={[
             {
-              backgroundColor: '#C273FF',
+              backgroundColor: 'rgb(255, 90, 79)',
               height: 8,
               borderRadius: 10,
               position: 'absolute',
