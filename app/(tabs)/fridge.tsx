@@ -32,6 +32,45 @@ export default function ProductsScreen() {
     setProducts(loadedProducts);
   };
 
+  const handleAddFridge = () => {
+    Alert.prompt(
+      "Nouveau frigo",
+      "Entrez le nom du nouveau frigo",
+      [
+        {
+          text: "Annuler",
+          style: "cancel"
+        },
+        {
+          text: "Créer",
+          onPress: async (name?: string) => {
+            if (!name || name.trim() === '') {
+              Alert.alert(
+                "Erreur",
+                "Le nom du frigo ne peut pas être vide"
+              );
+              return;
+            }
+            try {
+              const newFridge = await addFridge(name.trim());
+              await refreshFridges();
+              await setSelectedFridgeId(newFridge.id);
+            } catch (error) {
+              console.error('Erreur lors de la création du frigo:', error);
+              Alert.alert(
+                "Erreur",
+                "Une erreur est survenue lors de la création du frigo"
+              );
+            }
+          }
+        }
+      ],
+      'plain-text',
+      '',
+      'default'
+    );
+  };
+
   const handleDeleteProduct = async (productId: string) => {
     if (selectedFridgeId) {
       await deleteProduct(productId, selectedFridgeId);
@@ -123,12 +162,7 @@ export default function ProductsScreen() {
                 value: fridge.id,
               }))}
             />
-            <TouchableOpacity onPress={() =>
-              addFridge('Nouveau Frigo')
-                .then(() => {
-                  refreshFridges();
-                })
-            }>
+            <TouchableOpacity onPress={handleAddFridge}>
               <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
             </TouchableOpacity>
             <TouchableOpacity onPress={handleDeleteFridge}>
