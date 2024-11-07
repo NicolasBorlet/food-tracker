@@ -8,6 +8,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Entypo } from '@expo/vector-icons';
 import { Pressable } from 'react-native';
+import { FridgeProvider } from './contexts/FridgeContext';
 import DefaultTheme from './themes/DefaultTheme';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -39,15 +40,17 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DefaultTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="fridge/[id]"
-          options={{
-            headerLeft: () => <Pressable onPress={() => router.back()}><Entypo name="chevron-left" size={24} color="rgb(255, 90, 79)" /></Pressable>
-          }}
-        />
-        <Stack.Screen name="+not-found" />
-      </Stack>
+      <FridgeProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="fridge/[id]"
+            options={{
+              headerLeft: () => <Pressable onPress={() => router.back()}><Entypo name="chevron-left" size={24} color="rgb(255, 90, 79)" /></Pressable>
+            }}
+          />
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </FridgeProvider>
     </ThemeProvider>
   );
 }

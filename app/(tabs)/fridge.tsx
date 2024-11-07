@@ -9,34 +9,34 @@ import { useCallback, useState } from 'react';
 import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Product, addFridge, deleteProduct, getFridges, getProducts } from '../utils/productUtils';
+import { useFridge } from '../contexts/FridgeContext';
+import { Product } from '../types/types';
+import { addFridge } from '../utils/fridgeUtils';
+import { deleteProduct, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
-  const [fridges, setFridges] = useState<any[]>([]);
-  const [selectedFridge, setSelectedFridge] = useState<string | null>(null);
+  const { fridges, selectedFridgeId, setSelectedFridgeId, refreshFridges } = useFridge();
 
   useFocusEffect(
     useCallback(() => {
-      getFridges()
-        .then((fridges) => {
-          setFridges(fridges);
-        });
-      if (selectedFridge) {
-        loadProducts(selectedFridge);
+      refreshFridges();
+      if (selectedFridgeId) {
+        loadProducts(selectedFridgeId);
       }
-    }, [selectedFridge])
+    }, [selectedFridgeId])
   );
 
   const loadProducts = async (fridgeId: string) => {
     const loadedProducts = await getProducts(fridgeId);
+    console.log('loadedProducts', loadedProducts);
     setProducts(loadedProducts);
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    if (selectedFridge) {
-      await deleteProduct(productId, selectedFridge);
-      await loadProducts(selectedFridge);
+    if (selectedFridgeId) {
+      await deleteProduct(productId, selectedFridgeId);
+      await loadProducts(selectedFridgeId);
     }
   };
 
@@ -70,21 +70,18 @@ export default function ProductsScreen() {
           </Block>
           <View style={{ gap: 8, alignItems: 'center', flexDirection: 'row' }}>
             <RNPickerSelect
-              onValueChange={(value) => console.log(value)}
-              items={fridges.map((fridge: any) => ({
+              onValueChange={(value) => setSelectedFridgeId(value)}
+              value={selectedFridgeId}
+              items={fridges.map((fridge) => ({
                 label: fridge.name,
                 value: fridge.id,
               }))}
             />
             <TouchableOpacity onPress={() =>
-              // Create a new fridge
               addFridge('Nouveau Frigo')
-              .then(() => {
-                getFridges()
-                  .then((fridges) => {
-                    setSelectedFridge(fridges[fridges.length - 1].id);
-                  });
-              })
+                .then(() => {
+                  refreshFridges();
+                })
             }>
               <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
             </TouchableOpacity>

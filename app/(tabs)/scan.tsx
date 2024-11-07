@@ -3,37 +3,28 @@ import { BlurView } from "expo-blur";
 import { BarcodeScanningResult, CameraView, useCameraPermissions } from "expo-camera";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { fetchProductData, getFridges, saveProduct } from "../utils/productUtils";
+import { useFridge } from '../contexts/FridgeContext';
+import { fetchProductData, saveProduct } from "../utils/productUtils";
 
 const { width } = Dimensions.get('window');
 
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [isScanning, setIsScanning] = useState(true);
-  const [selectedFridge, setSelectedFridge] = useState(null);
-  const [fridges, setFridges] = useState([]);
+  const { selectedFridgeId } = useFridge();
   const router = useRouter();
 
-  useEffect(() => {
-    const loadFridges = async () => {
-      const loadedFridges = await getFridges();
-      setFridges(loadedFridges);
-    };
-    loadFridges();
-  }, []);
-
-
   const handleBarCodeScanned = async ({ data }: BarcodeScanningResult) => {
-    if (!isScanning || !selectedFridge) return;
+    if (!isScanning || !selectedFridgeId) return;
     setIsScanning(false);
 
     try {
       const productData = await fetchProductData(data);
       if (productData) {
-        await saveProduct(productData, selectedFridge);
-        router.push(`/products/${productData.id}`);
+        await saveProduct(productData, selectedFridgeId);
+        router.push(`/fridge/${productData.id}`);
       } else {
         alert("Produit non trouvé");
         setIsScanning(true);

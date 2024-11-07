@@ -6,12 +6,16 @@ import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Product, getProducts } from '../utils/productUtils';
+import { useFridge } from '../contexts/FridgeContext';
+import { Product } from '../types/types';
+import { getProducts } from '../utils/productUtils';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
   const navigation = useNavigation();
   const [product, setProduct] = useState<Product | null>(null);
+
+  const { selectedFridgeId } = useFridge();
 
   useEffect(() => {
     loadProduct()
@@ -24,7 +28,7 @@ export default function ProductDetailScreen() {
   }, [product]);
 
   const loadProduct = async () => {
-    const products = await getProducts();
+    const products = await getProducts(selectedFridgeId || '');
     const foundProduct = products.find(p => p.id === id);
     setProduct(foundProduct || null);
   };
