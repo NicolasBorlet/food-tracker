@@ -26,7 +26,57 @@ export interface Product {
   nova_group?: number;
 }
 
-const STORAGE_KEY = 'scanned_products';
+const FRIDGES_STORAGE_KEY = 'fridges';
+
+export async function addFridge(name: string) {
+  try {
+    const fridges = await getFridges();
+    const fridge = { id: `${fridges.length + 1}`, name };
+    await saveFridge(fridge);
+    return fridge;
+  } catch (error) {
+    console.error('Erreur lors de la création du frigo:', error);
+    throw error;
+  }
+}
+
+export async function getFridges() {
+  try {
+    const fridgesJson = await AsyncStorage.getItem(FRIDGES_STORAGE_KEY);
+    return fridgesJson ? JSON.parse(fridgesJson) : [];
+  } catch (error) {
+    console.error('Erreur lors de la récupération des frigos:', error);
+    return [];
+  }
+}
+
+export async function saveFridge(fridge: any) {
+  try {
+    const fridges: any[] = await getFridges();
+    const fridgeExists = fridges.some(f => f.id === fridge.id);
+
+    if (!fridgeExists) {
+      fridges.push(fridge);
+      await AsyncStorage.setItem(FRIDGES_STORAGE_KEY, JSON.stringify(fridges));
+    }
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde du frigo:', error);
+    throw error;
+  }
+}
+
+export async function updateFridgeProducts(fridgeId: string, products: Product[]) {
+  try {
+    const fridges: any[] = await getFridges();
+    const updatedFridges = fridges.map(fridge =>
+      fridge.id === fridgeId ? { ...fridge, products } : fridge
+    );
+    await AsyncStorage.setItem(FRIDGES_STORAGE_KEY, JSON.stringify(updatedFridges));
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour des produits du frigo:', error);
+    throw error;
+  }
+}
 
 // Fetch product data
 export async function fetchProductData(barcode: string): Promise<Product | null> {
@@ -54,12 +104,12 @@ export async function fetchProductData(barcode: string): Promise<Product | null>
   }
 }
 
-// Save product
-export async function saveProduct(product: Product): Promise<void> {
-  try {
-    const existingProductsJson = await AsyncStorage.getItem(STORAGE_KEY);
-    console.log('Produits existants:', existingProductsJson);
+const STORAGE_KEY_PREFIX = 'fridge_products_';
 
+export async function saveProduct(product: Product, fridgeId: string): Promise<void> {
+  try {
+    const storageKey = `${STORAGE_KEY_PREFIX}${fridgeId}`;
+    const existingProductsJson = await AsyncStorage.getItem(storageKey);
     const existingProducts: Product[] = existingProductsJson
       ? JSON.parse(existingProductsJson)
       : [];
@@ -67,7 +117,7 @@ export async function saveProduct(product: Product): Promise<void> {
     const productExists = existingProducts.some(p => p.id === product.id);
     if (!productExists) {
       existingProducts.push(product);
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(existingProducts));
+      await AsyncStorage.setItem(storageKey, JSON.stringify(existingProducts));
       console.log('Produit sauvegardé avec succès:', product);
     }
   } catch (error) {
@@ -77,19 +127,11 @@ export async function saveProduct(product: Product): Promise<void> {
 }
 
 // Get products
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(fridgeId: string): Promise<Product[]> {
   try {
-    const productsJson = await AsyncStorage.getItem(STORAGE_KEY);
-    console.log('Récupération des produits:', productsJson);
-
-    if (!productsJson) {
-      console.log('Aucun produit trouvé dans le storage');
-      return [];
-    }
-
-    const products = JSON.parse(productsJson);
-    console.log('Produits parsés:', products);
-    return products;
+    const storageKey = `${STORAGE_KEY_PREFIX}${fridgeId}`;
+    const productsJson = await AsyncStorage.getItem(storageKey);
+    return productsJson ? JSON.parse(productsJson) : [];
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error);
     return [];
@@ -97,11 +139,12 @@ export async function getProducts(): Promise<Product[]> {
 }
 
 // Delete product
-export async function deleteProduct(productId: string): Promise<void> {
+export async function deleteProduct(productId: string, fridgeId: string): Promise<void> {
   try {
-    const products = await getProducts();
+    const storageKey = `${STORAGE_KEY_PREFIX}${fridgeId}`;
+    const products = await getProducts(fridgeId);
     const updatedProducts = products.filter(p => p.id !== productId);
-    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedProducts));
+    await AsyncStorage.setItem(storageKey, JSON.stringify(updatedProducts));
   } catch (error) {
     console.error('Erreur lors de la suppression du produit:', error);
     throw error;

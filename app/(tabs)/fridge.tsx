@@ -1,55 +1,62 @@
 import Block from '@/components/block';
+import { ListingItem } from '@/components/styled-listing-item';
 import { Body, H1 } from '@/components/styled-title';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { FlashList } from "@shopify/flash-list";
 import { Link } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import RNPickerSelect from 'react-native-picker-select';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Product, deleteProduct, getProducts } from '../utils/productUtils';
+import { Product, addFridge, deleteProduct, getFridges, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [fridges, setFridges] = useState<any[]>([]);
+  const [selectedFridge, setSelectedFridge] = useState<string | null>(null);
 
   useFocusEffect(
     useCallback(() => {
-      loadProducts();
-    }, [])
+      getFridges()
+        .then((fridges) => {
+          setFridges(fridges);
+        });
+      if (selectedFridge) {
+        loadProducts(selectedFridge);
+      }
+    }, [selectedFridge])
   );
 
-  const loadProducts = async () => {
-    console.log('Chargement des produits...');
-    const loadedProducts = await getProducts();
-    console.log('Produits chargés:', loadedProducts);
+  const loadProducts = async (fridgeId: string) => {
+    const loadedProducts = await getProducts(fridgeId);
     setProducts(loadedProducts);
   };
 
   const handleDeleteProduct = async (productId: string) => {
-    await deleteProduct(productId);
-    await loadProducts();
+    if (selectedFridge) {
+      await deleteProduct(productId, selectedFridge);
+      await loadProducts(selectedFridge);
+    }
   };
 
   const renderItem = ({ item }: { item: Product }) => (
-    <Link
-      href={`/fridge/${item.id}`}
-      asChild
-    >
-      <TouchableOpacity style={styles.productCard}>
-        <Image
-          source={{ uri: item.image_url }}
-          style={styles.productImage}
-        />
-        <Block style={styles.productInfo}>
-          <H1 style={styles.productName}>{item.name}</H1>
-          <Body style={styles.productBrand}>{item.brand}</Body>
-        </Block>
-        <TouchableOpacity
-          style={styles.deleteButton}
-          onPress={() => handleDeleteProduct(item.id)}
-        >
-          <Ionicons name="trash-outline" size={24} color="white" />
-        </TouchableOpacity>
+    <Link href={`/fridge/${item.id}`} asChild>
+      <TouchableOpacity>
+        <ListingItem>
+          <Image
+            source={{ uri: item.image_url }}
+            style={styles.productImage}
+            resizeMode="contain"
+          />
+          <Block style={styles.productInfo}>
+            <H1 style={styles.productName}>{item.name}</H1>
+            <Body style={styles.productBrand}>{item.brand}</Body>
+          </Block>
+          <TouchableOpacity onPress={() => handleDeleteProduct(item.id)}>
+            <Ionicons name="trash-outline" size={24} color="rgb(255, 90, 79)" />
+          </TouchableOpacity>
+        </ListingItem>
       </TouchableOpacity>
     </Link>
   );
@@ -57,7 +64,32 @@ export default function ProductsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, paddingHorizontal: 16 }}>
       <Block style={{ gap: 16 }}>
-        <H1>Mon frigo</H1>
+        <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
+          <Block style={{ flex: 1 }}>
+            <H1>Mon frigo</H1>
+          </Block>
+          <View style={{ gap: 8, alignItems: 'center', flexDirection: 'row' }}>
+            <RNPickerSelect
+              onValueChange={(value) => console.log(value)}
+              items={fridges.map((fridge: any) => ({
+                label: fridge.name,
+                value: fridge.id,
+              }))}
+            />
+            <TouchableOpacity onPress={() =>
+              // Create a new fridge
+              addFridge('Nouveau Frigo')
+              .then(() => {
+                getFridges()
+                  .then((fridges) => {
+                    setSelectedFridge(fridges[fridges.length - 1].id);
+                  });
+              })
+            }>
+              <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
+            </TouchableOpacity>
+          </View>
+        </View>
         <FlashList
           data={products}
           renderItem={renderItem}
@@ -95,7 +127,6 @@ const styles = StyleSheet.create({
   productImage: {
     width: 60,
     height: 60,
-    borderRadius: 4,
   },
   productInfo: {
     flex: 1,
