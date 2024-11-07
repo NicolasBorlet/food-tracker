@@ -22,6 +22,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="fridge"
         options={{
+          title: 'Frigo',
           headerShown: false,
           tabBarIcon: ({ color }) => <FontAwesome name="list" size={24} color={color} />,
         }}
