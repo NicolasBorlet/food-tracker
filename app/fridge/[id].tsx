@@ -2,7 +2,7 @@ import Block from '@/components/block';
 import Progress from '@/components/progress';
 import { Card } from '@/components/styled-card';
 import { Body, H1, H2 } from '@/components/styled-title';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useNavigation } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -10,11 +10,18 @@ import { Product, getProducts } from '../utils/productUtils';
 
 export default function ProductDetailScreen() {
   const { id } = useLocalSearchParams();
+  const navigation = useNavigation();
   const [product, setProduct] = useState<Product | null>(null);
 
   useEffect(() => {
-    loadProduct();
+    loadProduct()
   }, [id]);
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitle: product?.name || 'Produit',
+    });
+  }, [product]);
 
   const loadProduct = async () => {
     const products = await getProducts();

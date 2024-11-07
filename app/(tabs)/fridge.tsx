@@ -2,14 +2,15 @@ import Block from '@/components/block';
 import { Body, H1 } from '@/components/styled-title';
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { FlashList } from "@shopify/flash-list";
+import { Link } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { FlatList, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Product, deleteProduct, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
-  const router = useRouter();
 
   useFocusEffect(
     useCallback(() => {
@@ -30,36 +31,41 @@ export default function ProductsScreen() {
   };
 
   const renderItem = ({ item }: { item: Product }) => (
-    <TouchableOpacity
-      style={styles.productCard}
-      onPress={() => router.push(`/products/${item.id}`)}
+    <Link
+      href={`/fridge/${item.id}`}
+      asChild
     >
-      <Image
-        source={{ uri: item.image_url }}
-        style={styles.productImage}
-      />
-      <Block style={styles.productInfo}>
-        <H1 style={styles.productName}>{item.name}</H1>
-        <Body style={styles.productBrand}>{item.brand}</Body>
-      </Block>
-      <TouchableOpacity
-        style={styles.deleteButton}
-        onPress={() => handleDeleteProduct(item.id)}
-      >
-        <Ionicons name="trash-outline" size={24} color="white" />
+      <TouchableOpacity style={styles.productCard}>
+        <Image
+          source={{ uri: item.image_url }}
+          style={styles.productImage}
+        />
+        <Block style={styles.productInfo}>
+          <H1 style={styles.productName}>{item.name}</H1>
+          <Body style={styles.productBrand}>{item.brand}</Body>
+        </Block>
+        <TouchableOpacity
+          style={styles.deleteButton}
+          onPress={() => handleDeleteProduct(item.id)}
+        >
+          <Ionicons name="trash-outline" size={24} color="white" />
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
+    </Link>
   );
 
   return (
-    <View style={styles.container}>
-      <FlatList
-        data={products}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContainer}
-      />
-    </View>
+    <SafeAreaView style={{ flex: 1, paddingHorizontal: 16 }}>
+      <Block style={{ gap: 16 }}>
+        <H1>Mon frigo</H1>
+        <FlashList
+          data={products}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          estimatedItemSize={100}
+        />
+      </Block>
+    </SafeAreaView>
   );
 }
 
@@ -76,9 +82,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    padding: 16,
-  },
-  listContainer: {
     padding: 16,
   },
   productCard: {
