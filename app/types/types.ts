@@ -3,6 +3,7 @@ export interface Product {
   name: string;
   brand?: string;
   image_url: string;
+  quantity: number;
   nutriments: {
     energy_100g?: number;
     "energy-kcal_100g"?: number;

@@ -16,6 +16,7 @@ export async function fetchProductData(barcode: string): Promise<Product | null>
         name: product.product_name,
         brand: product.brands,
         image_url: product.image_url,
+        quantity: 1,
         nutriments: product.nutriments,
         ingredients_text: product.ingredients_text,
         nutriscore_grade: product.nutriscore_grade,
@@ -37,11 +38,20 @@ export async function saveProduct(product: Product, fridgeId: string): Promise<v
       throw new Error('Frigo non trouvé');
     }
 
-    const productExists = fridge.products.some(p => p.id === product.id);
-    if (!productExists) {
-      fridge.products.push(product);
-      await updateFridge(fridge);
+    const existingProductIndex = fridge.products.findIndex(p => p.id === product.id);
+
+    if (existingProductIndex !== -1) {
+      // Si le produit existe déjà, augmenter sa quantité
+      fridge.products[existingProductIndex].quantity += 1;
+    } else {
+      // Si c'est un nouveau produit, l'ajouter avec une quantité de 1
+      fridge.products.push({
+        ...product,
+        quantity: 1
+      });
     }
+
+    await updateFridge(fridge);
   } catch (error) {
     console.error('Erreur lors de la sauvegarde du produit:', error);
     throw error;
@@ -68,7 +78,18 @@ export async function deleteProduct(productId: string, fridgeId: string): Promis
       throw new Error('Frigo non trouvé');
     }
 
-    fridge.products = fridge.products.filter(p => p.id !== productId);
+    const productIndex = fridge.products.findIndex(p => p.id === productId);
+
+    if (productIndex !== -1) {
+      if (fridge.products[productIndex].quantity > 1) {
+        // Si la quantité est supérieure à 1, la décrémenter
+        fridge.products[productIndex].quantity -= 1;
+      } else {
+        // Si la quantité est de 1, supprimer le produit
+        fridge.products = fridge.products.filter(p => p.id !== productId);
+      }
+    }
+
     await updateFridge(fridge);
   } catch (error) {
     console.error('Erreur lors de la suppression du produit:', error);

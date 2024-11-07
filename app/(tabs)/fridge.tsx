@@ -136,7 +136,9 @@ export default function ProductsScreen() {
           />
           <Block style={styles.productInfo}>
             <H1 style={styles.productName}>{item.name}</H1>
-            <Body style={styles.productBrand}>{item.brand}</Body>
+            <Body style={styles.productQuantity}>
+              Quantité : {item.quantity}
+            </Body>
           </Block>
           <TouchableOpacity onPress={() => handleDeleteProduct(item.id)}>
             <Ionicons name="trash-outline" size={24} color="rgb(255, 90, 79)" />
@@ -227,5 +229,9 @@ const styles = StyleSheet.create({
   },
   deleteButtonText: {
     color: 'white',
+  },
+  productQuantity: {
+    fontSize: 14,
+    color: '#666',
   },
 });
