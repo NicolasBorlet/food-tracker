@@ -248,7 +248,7 @@ export default function ProductsScreen() {
           <Image
             source={{ uri: item.image_url }}
             style={styles.productImage}
-            resizeMode="contain"
+            contentFit="contain"
           />
           <Block style={styles.productInfo}>
             <H1 style={styles.productName}>{item.name}</H1>
