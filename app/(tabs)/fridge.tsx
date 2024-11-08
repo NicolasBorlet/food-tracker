@@ -3,11 +3,12 @@ import FloatingButton from '@/components/floating-button';
 import { ListingItem } from '@/components/styled-listing-item';
 import { Body, H1 } from '@/components/styled-title';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { FlashList } from "@shopify/flash-list";
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { useCallback, useState } from 'react';
-import { Alert, Image, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCallback, useLayoutEffect, useState } from 'react';
+import { Alert, StyleSheet, TouchableOpacity, View } from 'react-native';
 import RNPickerSelect from 'react-native-picker-select';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFridge } from '../contexts/FridgeContext';
@@ -18,6 +19,7 @@ import { deleteProduct, getProducts } from '../utils/productUtils';
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const { fridges, selectedFridgeId, setSelectedFridgeId, refreshFridges, selectedFridge} = useFridge();
+  const navigation = useNavigation();
 
   useFocusEffect(
     useCallback(() => {
@@ -27,6 +29,33 @@ export default function ProductsScreen() {
       }
     }, [selectedFridgeId])
   );
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerTitle: () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', paddingRight: 16 }}>
+          <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'space-between', width: '100%' }}>
+            <RNPickerSelect
+              onValueChange={(value) => setSelectedFridgeId(value)}
+              value={selectedFridgeId}
+              items={fridges.map((fridge) => ({
+                label: fridge.name,
+                value: fridge.id,
+              }))}
+            />
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TouchableOpacity onPress={handleAddFridge}>
+                <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleDeleteFridge}>
+                <Ionicons name="trash-outline" size={24} color="rgb(255, 90, 79)" />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      ),
+    });
+  }, [navigation, selectedFridgeId, fridges]);
 
   const loadProducts = async (fridgeId: string) => {
     const loadedProducts = await getProducts(fridgeId);
@@ -238,32 +267,24 @@ export default function ProductsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, paddingHorizontal: 16 }}>
       <Block style={{ gap: 16 }}>
-        <View style={{ justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row' }}>
-          <Block style={{ flex: 1 }}>
-            <RNPickerSelect
-              onValueChange={(value) => setSelectedFridgeId(value)}
-              value={selectedFridgeId}
-              items={fridges.map((fridge) => ({
-                label: fridge.name,
-                value: fridge.id,
-              }))}
-            />
-          </Block>
-          <View style={{ gap: 8, alignItems: 'center', flexDirection: 'row' }}>
-            <TouchableOpacity onPress={handleAddFridge}>
-              <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={handleDeleteFridge}>
-              <Ionicons name="trash-outline" size={24} color="rgb(255, 90, 79)" />
-            </TouchableOpacity>
-          </View>
-        </View>
-        <FlashList
-          data={products}
+        {products.length > 0 ? (
+          <FlashList
+            data={products}
           renderItem={renderItem}
           keyExtractor={item => item.id}
-          estimatedItemSize={100}
-        />
+            estimatedItemSize={100}
+          />
+        ) : (
+          <Block style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <H1>Votre frigo est vide</H1>
+            <Image
+              source={require('../../assets/images/empty-fridge.svg')}
+              style={{ width: 200, height: 200 }}
+              contentFit="contain"
+              transition={1000}
+            />
+          </Block>
+        )}
       </Block>
       <FloatingButton />
     </SafeAreaView>

@@ -23,7 +23,7 @@ export default function TabLayout() {
         name="fridge"
         options={{
           title: 'Frigo',
-          headerShown: false,
+          headerShown: true,
           tabBarIcon: ({ color }) => <FontAwesome name="list" size={24} color={color} />,
         }}
       />
