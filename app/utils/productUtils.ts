@@ -100,7 +100,7 @@ export async function deleteProduct(productId: string, fridgeId: string): Promis
 export async function searchProducts(query: string): Promise<Product[]> {
   try {
     const response = await axios.get(
-      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=true&page_size=5`
+      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=true&page_size=1`
     );
 
     if (response.data.products) {
