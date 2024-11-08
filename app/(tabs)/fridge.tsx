@@ -1,4 +1,5 @@
 import Block from '@/components/block';
+import FloatingButton from '@/components/floating-button';
 import { ListingItem } from '@/components/styled-listing-item';
 import { Body, H1 } from '@/components/styled-title';
 import { Ionicons } from '@expo/vector-icons';
@@ -264,6 +265,7 @@ export default function ProductsScreen() {
           estimatedItemSize={100}
         />
       </Block>
+      <FloatingButton />
     </SafeAreaView>
   );
 }
