@@ -96,3 +96,28 @@ export async function deleteProduct(productId: string, fridgeId: string): Promis
     throw error;
   }
 }
+
+export async function searchProducts(query: string): Promise<Product[]> {
+  try {
+    const response = await axios.get(
+      `https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&json=true&page_size=5`
+    );
+
+    if (response.data.products) {
+      return response.data.products.map((product: any) => ({
+        id: product.code,
+        name: product.product_name || 'Produit sans nom',
+        brand: product.brands,
+        image_url: product.image_url || 'https://via.placeholder.com/150',
+        quantity: 1,
+        nutriments: product.nutriments,
+        ingredients_text: product.ingredients_text,
+        nutriscore_grade: product.nutriscore_grade,
+      }));
+    }
+    return [];
+  } catch (error) {
+    console.error('Erreur lors de la recherche des produits:', error);
+    return [];
+  }
+}
