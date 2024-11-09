@@ -34,15 +34,18 @@ export default function ProductsScreen() {
     navigation.setOptions({
       headerTitle: () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', paddingRight: 16 }}>
-          <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'space-between', width: '100%' }}>
-            <RNPickerSelect
-              onValueChange={(value) => setSelectedFridgeId(value)}
-              value={selectedFridgeId}
-              items={fridges.map((fridge) => ({
-                label: fridge.name,
-                value: fridge.id,
-              }))}
-            />
+          <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <RNPickerSelect
+                onValueChange={(value) => setSelectedFridgeId(value)}
+                value={selectedFridgeId}
+                items={fridges.map((fridge) => ({
+                  label: fridge.name,
+                  value: fridge.id,
+                }))}
+              />
+              <Ionicons name="chevron-down-outline" size={16} color="rgb(255, 90, 79)" />
+            </View>
             <View style={{ flexDirection: 'row', gap: 8 }}>
               <TouchableOpacity onPress={handleAddFridge}>
                 <Ionicons name="add-outline" size={24} color="rgb(255, 90, 79)" />
