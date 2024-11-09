@@ -102,7 +102,7 @@ export default function FloatingButton() {
                 alignItems: 'center',
                 gap: 8,
               }}
-              onPress={handleAddProduct}
+              // onPress={handleAddProduct}
             >
               <Ionicons name="pizza-outline" size={24} color="white" />
               <Body style={{ color: 'white' }}>Générer une recette</Body>
