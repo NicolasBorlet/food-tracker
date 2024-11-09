@@ -4,7 +4,6 @@ import { getFridges, updateFridge } from './fridgeUtils';
 export async function addShoppingListItem(
   fridgeId: string,
   itemName: string,
-  quantity: number = 1
 ): Promise<void> {
   try {
     const fridges = await getFridges();
@@ -17,7 +16,6 @@ export async function addShoppingListItem(
     const newItem: ShoppingListItem = {
       id: `${Date.now()}`,
       name: itemName,
-      quantity,
       completed: false,
       addedAt: new Date().toISOString()
     };

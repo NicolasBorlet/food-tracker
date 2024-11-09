@@ -7,11 +7,13 @@ import { Product } from "../app/types/types";
 import { saveProduct } from "../app/utils/productUtils";
 import Block from "./block";
 import SearchProductModal from "./search-product-modal";
+import ShopListModal from "./shop-list-modal";
 import { Body } from "./styled-title";
 
 export default function FloatingButton() {
   const [isRotated, setIsRotated] = useState(false);
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
+  const [isListModalVisible, setIsListModalVisible] = useState(false);
   const { selectedFridgeId } = useFridge();
 
   const handleAddProduct = () => {
@@ -27,6 +29,11 @@ export default function FloatingButton() {
         console.error('Erreur lors de la sauvegarde du produit:', error);
       }
     }
+  };
+
+  const handleOpenListModal = () => {
+    setIsListModalVisible(true);
+    setIsRotated(false);
   };
 
   const paddingStyle = useAnimatedStyle(() => ({
@@ -62,6 +69,11 @@ export default function FloatingButton() {
         onSelectProduct={handleSelectProduct}
       />
 
+      <ShopListModal
+        isVisible={isListModalVisible}
+        onClose={() => setIsListModalVisible(false)}
+      />
+
       {isRotated && (
         <View style={{ marginBottom: 16, alignItems: 'flex-end', gap: 8 }}>
           <Animated.View style={[slideAnimation]}>
@@ -94,6 +106,22 @@ export default function FloatingButton() {
             >
               <Ionicons name="pizza-outline" size={24} color="white" />
               <Body style={{ color: 'white' }}>Générer une recette</Body>
+            </TouchableOpacity>
+          </Animated.View>
+          <Animated.View style={[slideAnimation]}>
+            <TouchableOpacity
+              style={{
+                backgroundColor: 'rgb(255, 90, 79)',
+                padding: 12,
+                borderRadius: 8,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 8,
+              }}
+              onPress={handleOpenListModal}
+            >
+              <Ionicons name="list-outline" size={24} color="white" />
+              <Body style={{ color: 'white' }}>Gérer la liste des courses</Body>
             </TouchableOpacity>
           </Animated.View>
         </View>

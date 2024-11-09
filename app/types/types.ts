@@ -27,7 +27,6 @@ export interface Product {
 export interface ShoppingListItem {
   id: string;
   name: string;
-  quantity: number;
   completed: boolean;
   addedAt: string;
 }

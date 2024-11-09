@@ -18,7 +18,7 @@ import { deleteProduct, getProducts } from '../utils/productUtils';
 
 export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
-  const { fridges, selectedFridgeId, setSelectedFridgeId, refreshFridges, selectedFridge} = useFridge();
+  const { fridges, selectedFridgeId, setSelectedFridgeId, refreshFridges } = useFridge();
   const navigation = useNavigation();
 
   useFocusEffect(
@@ -270,8 +270,8 @@ export default function ProductsScreen() {
         {products.length > 0 ? (
           <FlashList
             data={products}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
+            renderItem={renderItem}
+            keyExtractor={item => item.id}
             estimatedItemSize={100}
           />
         ) : (
