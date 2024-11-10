@@ -1,8 +1,12 @@
-import { Image, StyleSheet } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import Block from '@/components/block';
-import { H1 } from '@/components/styled-title';
+import { Card } from '@/components/styled-card';
+import { Body, H1, H2 } from '@/components/styled-title';
+import { FontAwesome } from '@expo/vector-icons';
+import { router } from 'expo-router';
+import { useFridge } from '../contexts/FridgeContext';
 
 const macros = [
   {
@@ -23,17 +27,46 @@ const macros = [
 ]
 
 export default function HomeScreen() {
+  const { fridges, setSelectedFridgeId } = useFridge();
+
+  const handleFridgePress = (fridgeId: string) => {
+    setSelectedFridgeId(fridgeId).then(() => {
+      router.navigate(`/fridge`);
+    });
+  };
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerBackgroundColor={{ light: 'rgb(255, 90, 79)', dark: 'rgb(255, 90, 79)' }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
+          source={require('@/assets/images/empty-fridge-white.png')}
+          style={styles.fridgeImage}
         />
       }>
-      <Block>
-        <H1>Bienvenue sur FridgeAI</H1>
+      <Block style={{ gap: 32 }}>
+        <Block style={{ gap: 8 }}>
+          <H1>Bienvenue sur FridgeAI</H1>
+          <Body>
+            FridgeAI est une application qui vous permet de gérer votre frigo en toute simplicité.
+          </Body>
+        </Block>
+
+        <Block style={{ gap: 8 }}>
+          <H2>Frigos disponibles</H2>
+          <Block style={{ gap: 8 }}>
+            {fridges.map((fridge) => (
+              <TouchableOpacity key={fridge.id} onPress={() => handleFridgePress(fridge.id)}>
+                <Card>
+                  <Body>{fridge.name}</Body>
+                  <View style={{ position: 'absolute', right: 16, top: 16 }}>
+                    <FontAwesome name="chevron-right" size={12} color="black" />
+                  </View>
+                </Card>
+              </TouchableOpacity>
+            ))}
+          </Block>
+        </Block>
       </Block>
     </ParallaxScrollView>
   );
@@ -49,11 +82,13 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
+  fridgeImage: {
+    height: 278,
+    width: 390,
+    top: '20%',
+    left: '-20%',
     position: 'absolute',
+    zIndex: 1,
+    resizeMode: 'contain',
   },
 });

@@ -28,7 +28,9 @@ export default function ProductsScreen() {
       try {
         await loadProducts(selectedFridgeId);
       } finally {
-        setIsLoading(false);
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 400);
       }
     }
   }, [selectedFridgeId]);
