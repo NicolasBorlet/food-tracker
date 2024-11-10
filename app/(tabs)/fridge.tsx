@@ -20,14 +20,24 @@ export default function ProductsScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const { fridges, selectedFridgeId, setSelectedFridgeId, refreshFridges } = useFridge();
   const navigation = useNavigation();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const refreshProducts = useCallback(async () => {
+    if (selectedFridgeId) {
+      setIsLoading(true);
+      try {
+        await loadProducts(selectedFridgeId);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  }, [selectedFridgeId]);
 
   useFocusEffect(
     useCallback(() => {
       refreshFridges();
-      if (selectedFridgeId) {
-        loadProducts(selectedFridgeId);
-      }
-    }, [selectedFridgeId])
+      refreshProducts();
+    }, [selectedFridgeId, refreshProducts])
   );
 
   useLayoutEffect(() => {
@@ -270,12 +280,18 @@ export default function ProductsScreen() {
   return (
     <SafeAreaView style={{ flex: 1, paddingHorizontal: 16 }}>
       <Block style={{ gap: 16 }}>
-        {products.length > 0 ? (
+        {isLoading ? (
+          <Block style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <Body>Chargement...</Body>
+          </Block>
+        ) : products.length > 0 ? (
           <FlashList
             data={products}
             renderItem={renderItem}
             keyExtractor={item => item.id}
             estimatedItemSize={100}
+            onRefresh={refreshProducts}
+            refreshing={isLoading}
           />
         ) : (
           <Block style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -289,7 +305,7 @@ export default function ProductsScreen() {
           </Block>
         )}
       </Block>
-      <FloatingButton />
+      <FloatingButton onProductsUpdated={refreshProducts} />
     </SafeAreaView>
   );
 }

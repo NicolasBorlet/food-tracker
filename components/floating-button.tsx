@@ -10,7 +10,11 @@ import SearchProductModal from "./search-product-modal";
 import ShopListModal from "./shop-list-modal";
 import { Body } from "./styled-title";
 
-export default function FloatingButton() {
+interface FloatingButtonProps {
+  onProductsUpdated?: () => void;
+}
+
+export default function FloatingButton({ onProductsUpdated }: FloatingButtonProps) {
   const [isRotated, setIsRotated] = useState(false);
   const [isSearchModalVisible, setIsSearchModalVisible] = useState(false);
   const [isListModalVisible, setIsListModalVisible] = useState(false);
@@ -25,6 +29,9 @@ export default function FloatingButton() {
     if (selectedFridgeId) {
       try {
         await saveProduct(product, selectedFridgeId);
+        if (onProductsUpdated) {
+          onProductsUpdated();
+        }
       } catch (error) {
         console.error('Erreur lors de la sauvegarde du produit:', error);
       }
