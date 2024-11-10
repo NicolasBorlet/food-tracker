@@ -17,6 +17,7 @@ export default function TabLayout() {
           title: 'Scanner',
           tabBarIcon: ({ color }) => <FontAwesome name="camera" size={24} color={color} />,
           unmountOnBlur: true,
+          headerShown: false,
         }}
       />
       <Tabs.Screen

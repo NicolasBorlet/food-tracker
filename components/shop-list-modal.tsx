@@ -1,4 +1,5 @@
 import { useFridge } from "@/app/contexts/FridgeContext";
+import { ShoppingListItem } from "@/app/types/types";
 import { addShoppingListItem, deleteShoppingListItem, toggleShoppingListItem, updateShoppingListItem } from "@/app/utils/shoppingListUtils";
 import { Feather, Ionicons } from "@expo/vector-icons";
 import { FlashList } from "@shopify/flash-list";
@@ -13,12 +14,6 @@ interface ShopListModalProps {
   onClose: () => void;
 }
 
-interface ShoppingListItem {
-  id: string;
-  name: string;
-  quantity: number;
-  completed: boolean;
-}
 
 export default function ShopListModal({ isVisible, onClose }: ShopListModalProps) {
   const { fridges, selectedFridgeId, refreshFridges } = useFridge();
@@ -150,7 +145,7 @@ export default function ShopListModal({ isVisible, onClose }: ShopListModalProps
             style={styles.input}
             value={newItemName}
             onChangeText={setNewItemName}
-            placeholder={editingItem ? "Modifier l'item..." : "Ajouter un item..."}
+            placeholder={editingItem ? "Modifier le produit..." : "Ajouter un produit..."}
             onSubmitEditing={editingItem ? handleUpdateItem : handleAddItem}
           />
           <StyledButton onPress={editingItem ? handleUpdateItem : handleAddItem}>

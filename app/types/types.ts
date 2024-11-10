@@ -25,6 +25,7 @@ export interface Product {
 }
 
 export interface ShoppingListItem {
+  quantity: number;
   id: string;
   name: string;
   completed: boolean;
