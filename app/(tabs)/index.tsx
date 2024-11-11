@@ -52,21 +52,25 @@ export default function HomeScreen() {
           </Body>
         </Block>
 
-        <Block style={{ gap: 8 }}>
-          <H2>Frigos disponibles</H2>
           <Block style={{ gap: 8 }}>
-            {fridges.map((fridge) => (
-              <TouchableOpacity key={fridge.id} onPress={() => handleFridgePress(fridge.id)}>
-                <Card>
-                  <Body>{fridge.name}</Body>
-                  <View style={{ position: 'absolute', right: 16, top: 16 }}>
-                    <FontAwesome name="chevron-right" size={12} color="black" />
-                  </View>
-                </Card>
-              </TouchableOpacity>
-            ))}
+            <H2>Frigos disponibles</H2>
+            <Block grid numColumns={2}>
+              {fridges.map((fridge) => (
+                <TouchableOpacity
+                  key={fridge.id}
+                  onPress={() => handleFridgePress(fridge.id)}
+                  style={{ marginBottom: 8 }}
+                >
+                  <Card>
+                    <Body>{fridge.name}</Body>
+                    <View style={{ position: 'absolute', right: 16, top: 16 }}>
+                      <FontAwesome name="chevron-right" size={12} color="black" />
+                    </View>
+                  </Card>
+                </TouchableOpacity>
+              ))}
+            </Block>
           </Block>
-        </Block>
       </Block>
     </ParallaxScrollView>
   );
